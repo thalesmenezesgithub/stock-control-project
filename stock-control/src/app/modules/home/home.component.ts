@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { UserService } from '../services/user/user.service';
 import { SignupUserRequest } from 'src/app/models/interfaces/user/SignupUserRequest';
+import { AuthRequest } from 'src/app/models/interfaces/user/auth/AuthRequest';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-home',
@@ -21,11 +23,26 @@ export class HomeComponent {
     password: ['',Validators.required],
   })
 
-  constructor(private formBuilder: FormBuilder, private userService: UserService){
-  }
+  constructor(
+    private formBuilder: FormBuilder, 
+    private userService: UserService, 
+    private cookieService: CookieService
+  ){ }
 
+  //Funcionalidade de Login ao sistema
   onSubmiteLoginForm(): void{
-    console.log('Dados do formulário de login', this.loginForm.value);
+    if(this.loginForm.value && this.loginForm.valid){
+      this.userService.authUser(this.loginForm.value as AuthRequest)
+      .subscribe({
+        next: (response) => {
+          if(response){
+            this.cookieService.set('USER_INFOR', response?.token);
+            this.loginForm.reset();
+          }
+        },
+        error: (err) => console.log(err)
+      });
+    }
   }
 
   //Criar novo usuário
@@ -36,6 +53,8 @@ export class HomeComponent {
         next: (response) => {
           if(response){
             alert('Usuário criado com sucesso!');
+            this.signupForm.reset();
+            this.loginCard = true;
           }
         },
         error: (err) => console.log(err)
