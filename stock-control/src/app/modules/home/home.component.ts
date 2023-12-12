@@ -5,6 +5,7 @@ import { SignupUserRequest } from 'src/app/models/interfaces/user/SignupUserRequ
 import { AuthRequest } from 'src/app/models/interfaces/user/auth/AuthRequest';
 import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -29,7 +30,8 @@ export class HomeComponent {
     private formBuilder: FormBuilder, 
     private userService: UserService, 
     private cookieService: CookieService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private router: Router,
   ){ }
 
   //Funcionalidade de Login ao sistema
@@ -41,6 +43,7 @@ export class HomeComponent {
           if(response){
             this.cookieService.set('USER_INFOR', response?.token);
             this.loginForm.reset();
+            this.router.navigate(['/dashboard']);
 
             this.messageService.add({
               severity: 'success',
